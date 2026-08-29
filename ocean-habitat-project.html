@@ -58,8 +58,8 @@
 
       if (!box || !message || !link) return;
 
-      box.hidden = true;
-      message.textContent = "";
+      box.hidden = false;
+      message.textContent = "After successful payment, your secure PDF download will appear here.";
       link.hidden = true;
       link.removeAttribute("href");
     }
@@ -692,8 +692,8 @@
       Test checkout only — no real payment will be charged while this page is connected to the Paddle Sandbox.
     </p>
 
-    <div id="download-status" class="download-status" hidden>
-      <p id="download-message"></p>
+    <div id="download-status" class="download-status">
+      <p id="download-message">After successful payment, your secure PDF download will appear here.</p>
       <a
         id="secure-download-link"
         class="secure-download-link"

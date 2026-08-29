@@ -4,11 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>School Projects India | EVS Projects, Habitat Models & 3D School Projects</title>
+  <title>School Projects India | EVS Projects, 3D Models & Habitat Projects</title>
 
-  <meta name="description" content="Easy printable school projects for kids in India. Discover EVS projects, habitat projects, 3D models and creative school project ideas for home and classroom use.">
-
-  <meta name="keywords" content="school projects India, EVS project, habitat project, 3D school model, forest habitat project, ocean habitat project, desert habitat project, school project ideas">
+  <meta name="description" content="Easy school projects for children in India. Discover printable EVS projects, 3D models, habitat projects and creative school assignments for students, parents and teachers.">
 
   <link rel="canonical" href="https://schoolprojectsindia.com/">
 
@@ -20,63 +18,129 @@
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: #f7f5ef;
-      color: #2f2f2f;
-      line-height: 1.6;
+      background: #fffaf2;
+      color: #2d2d2d;
+      line-height: 1.65;
+    }
+
+    .india-bar {
+      background: #fff3df;
+      color: #6c4d1f;
+      text-align: center;
+      padding: 9px 15px;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
     }
 
     header {
       background: #ffffff;
-      border-bottom: 1px solid #e7e2d8;
-      padding: 18px 20px;
+      border-bottom: 1px solid #eee4d4;
+      padding: 20px;
       text-align: center;
     }
 
     .logo {
-      font-size: 28px;
-      font-weight: bold;
-      color: #2f5d46;
+      font-size: 30px;
+      font-weight: 800;
+      color: #1f5b3b;
       text-decoration: none;
     }
 
+    .tagline {
+      margin-top: 3px;
+      color: #777;
+      font-size: 14px;
+    }
+
     .hero {
-      padding: 70px 20px 55px;
-      text-align: center;
-      max-width: 1000px;
+      max-width: 1050px;
       margin: auto;
+      text-align: center;
+      padding: 78px 20px 62px;
+    }
+
+    .hero-label {
+      display: inline-block;
+      background: #fff0d9;
+      color: #9b5a00;
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 18px;
     }
 
     .hero h1 {
-      font-size: 48px;
-      line-height: 1.15;
-      margin: 0 0 20px;
-      color: #234b39;
+      margin: 0 auto 20px;
+      max-width: 900px;
+      color: #204f38;
+      font-size: 52px;
+      line-height: 1.12;
     }
 
     .hero p {
+      max-width: 800px;
+      margin: auto;
       font-size: 20px;
-      max-width: 760px;
-      margin: 0 auto;
-      color: #555;
+      color: #595959;
+    }
+
+    .quick-help {
+      max-width: 1000px;
+      margin: 0 auto 55px;
+      padding: 0 20px;
+    }
+
+    .help-box {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 34px;
+      text-align: center;
+      box-shadow: 0 5px 18px rgba(0,0,0,0.07);
+      border-top: 5px solid #d88619;
+    }
+
+    .help-box h2 {
+      margin-top: 0;
+      color: #244f3a;
+      font-size: 30px;
+    }
+
+    .topics {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 23px;
+    }
+
+    .topic {
+      background: #f4f7f3;
+      color: #28583f;
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 14px;
     }
 
     .section {
       max-width: 1180px;
       margin: auto;
-      padding: 40px 20px 65px;
+      padding: 55px 20px 70px;
     }
 
     .section h2 {
       text-align: center;
-      font-size: 34px;
-      color: #234b39;
-      margin-bottom: 12px;
+      color: #204f38;
+      font-size: 36px;
+      margin-bottom: 10px;
     }
 
     .section-intro {
+      max-width: 780px;
+      margin: 0 auto 38px;
       text-align: center;
-      max-width: 760px;
-      margin: 0 auto 35px;
       color: #666;
       font-size: 18px;
     }
@@ -84,14 +148,14 @@
     .grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 28px;
+      gap: 26px;
     }
 
     .card {
       background: #ffffff;
-      border-radius: 14px;
+      border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
       transition: transform 0.2s ease;
     }
 
@@ -107,58 +171,123 @@
     }
 
     .card-content {
-      padding: 22px;
+      padding: 23px;
     }
 
     .card h3 {
-      margin-top: 0;
-      margin-bottom: 10px;
+      color: #24563d;
       font-size: 23px;
-      color: #2f5d46;
+      margin: 0 0 8px;
     }
 
     .card p {
-      margin-bottom: 18px;
       color: #666;
+      margin-bottom: 18px;
     }
 
     .button {
       display: inline-block;
+      background: #24563d;
+      color: white;
       padding: 11px 18px;
       border-radius: 8px;
-      background: #2f5d46;
-      color: white;
       text-decoration: none;
-      font-weight: bold;
+      font-weight: 700;
     }
 
-    .info {
-      background: #ffffff;
-      padding: 55px 20px;
-      margin-top: 10px;
+    .parent-section {
+      background: #f7eddf;
+      padding: 70px 20px;
     }
 
-    .info-inner {
+    .parent-inner {
       max-width: 900px;
       margin: auto;
       text-align: center;
     }
 
-    .info h2 {
-      color: #234b39;
-      font-size: 32px;
+    .parent-inner h2 {
+      font-size: 34px;
+      color: #204f38;
       margin-top: 0;
     }
 
-    .info p {
+    .parent-inner p {
       font-size: 18px;
-      color: #555;
+      color: #5a5a5a;
+    }
+
+    .how-section {
+      max-width: 1050px;
+      margin: auto;
+      padding: 70px 20px;
+    }
+
+    .how-section h2 {
+      text-align: center;
+      color: #204f38;
+      font-size: 34px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-top: 35px;
+    }
+
+    .step {
+      background: #ffffff;
+      text-align: center;
+      padding: 24px 15px;
+      border-radius: 14px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+    }
+
+    .step-number {
+      width: 38px;
+      height: 38px;
+      margin: 0 auto 12px;
+      border-radius: 50%;
+      background: #d88619;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .step strong {
+      display: block;
+      color: #28583f;
+      margin-bottom: 6px;
+    }
+
+    .school-use {
+      background: #ffffff;
+      max-width: 950px;
+      margin: 0 auto 65px;
+      padding: 35px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    }
+
+    .school-use h2 {
+      color: #204f38;
+      margin-top: 0;
+    }
+
+    .school-use p {
+      color: #606060;
+      font-size: 18px;
     }
 
     footer {
+      background: #173e2c;
+      color: #e9eee9;
       text-align: center;
-      padding: 30px 20px;
-      color: #777;
+      padding: 32px 20px;
       font-size: 14px;
     }
 
@@ -167,26 +296,35 @@
         grid-template-columns: repeat(2, 1fr);
       }
 
+      .steps {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
       .hero h1 {
-        font-size: 40px;
+        font-size: 42px;
       }
     }
 
     @media (max-width: 600px) {
-      .grid {
+      .grid,
+      .steps {
         grid-template-columns: 1fr;
       }
 
       .hero {
-        padding-top: 45px;
+        padding-top: 50px;
       }
 
       .hero h1 {
-        font-size: 34px;
+        font-size: 35px;
       }
 
       .hero p {
         font-size: 18px;
+      }
+
+      .section h2 {
+        font-size: 30px;
       }
     }
   </style>
@@ -194,134 +332,250 @@
 
 <body>
 
+<div class="india-bar">
+  🇮🇳 Made for students, parents & teachers across India
+</div>
+
 <header>
   <a class="logo" href="/">School Projects India</a>
+  <div class="tagline">EVS Projects · 3D Models · Habitat Projects · School Activities</div>
 </header>
 
 <section class="hero">
-  <h1>Easy School Projects for Kids in India</h1>
+
+  <div class="hero-label">Easy ideas for Indian school assignments</div>
+
+  <h1>School Projects Made Easier for Indian Families</h1>
+
   <p>
-    Printable EVS projects, habitat projects and 3D school models that are easy to make at home.
-    Print, cut, glue and create a colourful school project for class activities, homework and exhibitions.
+    Simple EVS projects, habitat models and creative 3D school assignments that parents and children can make together at home.
+    Clear ideas, easy instructions and colourful results without spending hours searching for what to make.
   </p>
+
+</section>
+
+<section class="quick-help">
+
+  <div class="help-box">
+
+    <h2>Need a School Project Fast?</h2>
+
+    <p>
+      Start with the topic your child received from school.
+      Choose a project, print the pages, cut the pieces and build the model together.
+    </p>
+
+    <div class="topics">
+      <span class="topic">EVS Project</span>
+      <span class="topic">Habitat Project</span>
+      <span class="topic">3D Model</span>
+      <span class="topic">Animal Project</span>
+      <span class="topic">Ecosystem Project</span>
+      <span class="topic">Holiday Homework</span>
+    </div>
+
+  </div>
+
 </section>
 
 <section class="section">
 
-  <h2>Popular Habitat Projects</h2>
+  <h2>Popular School Projects</h2>
 
   <p class="section-intro">
-    Explore simple printable habitat models for children, parents and teachers.
-    These projects are designed to make school assignments easier while still creating an impressive 3D result.
+    Start with one of our easy habitat projects.
+    Each project helps children create an attractive 3D school model while learning about animals, plants and ecosystems.
   </p>
 
   <div class="grid">
 
     <article class="card">
-      <img
-        src="images/forest-habitat-project-india.jpg"
-        alt="Forest habitat project 3D school model for kids in India"
-      >
 
-      <div class="card-content">
-        <h3>Forest Habitat Project</h3>
-        <p>
-          Create a colourful 3D forest model with trees, plants and woodland animals.
-          A fun idea for EVS projects and habitat assignments.
-        </p>
-       <a class="button" href="forest-habitat-project.html">View Forest Project</a>
-      </div>
-    </article>
-
-    <article class="card">
       <img
         src="images/ocean-habitat-project-india.jpg"
-        alt="Ocean habitat project and sea animals school model"
+        alt="Ocean habitat project with sea animals for school in India"
       >
 
       <div class="card-content">
         <h3>Ocean Habitat Project</h3>
         <p>
-          Build an underwater habitat with sea animals, coral and ocean scenery.
-          Ideal for marine life and ecosystem school projects.
+          Create an underwater world with sea animals, coral and ocean scenery.
+          Great for EVS, marine life and ecosystem projects.
         </p>
-        <a class="button" href="#">View Ocean Project</a>
+
+        <a class="button" href="ocean-habitat-project.html">
+          Explore Ocean Project
+        </a>
       </div>
+
     </article>
 
     <article class="card">
+
       <img
         src="images/desert-habitat-project-india.jpg"
-        alt="Desert habitat project 3D model with camel and desert animals"
+        alt="Desert habitat project 3D school model with camels"
       >
 
       <div class="card-content">
         <h3>Desert Habitat Project</h3>
+
         <p>
-          Make a 3D desert model featuring camels, cactus plants and desert scenery.
-          Perfect for habitat and environmental studies projects.
+          Build a desert model with camels, cactus plants and desert scenery.
+          Ideal for habitat, EVS and animal adaptation projects.
         </p>
-        <a class="button" href="#">View Desert Project</a>
+
+        <a class="button" href="desert-habitat-project.html">
+          Explore Desert Project
+        </a>
       </div>
+
     </article>
 
     <article class="card">
+
       <img
         src="images/rainforest-habitat-project-india.jpg"
-        alt="Rainforest habitat project for EVS and school activities"
+        alt="Rainforest habitat project for students in India"
       >
 
       <div class="card-content">
         <h3>Rainforest Habitat Project</h3>
+
         <p>
-          Discover rainforest layers, tropical plants and animals while creating a colourful 3D model.
+          Discover tropical animals, plants and rainforest layers while creating a colourful 3D model.
         </p>
-        <a class="button" href="#">View Rainforest Project</a>
+
+        <a class="button" href="rainforest-habitat-project.html">
+          Explore Rainforest Project
+        </a>
       </div>
+
     </article>
 
     <article class="card">
+
       <img
         src="images/savanna-habitat-project-india.jpg"
-        alt="Savanna habitat project with African animals for school"
+        alt="Savanna grassland habitat project with African animals"
       >
 
       <div class="card-content">
         <h3>Savanna Habitat Project</h3>
+
         <p>
-          Create a savanna grassland model with animals and scenery for classroom and home projects.
+          Make a grassland habitat with animals and scenery for EVS, ecosystem and animal habitat assignments.
         </p>
-        <a class="button" href="#">View Savanna Project</a>
+
+        <a class="button" href="savanna-habitat-project.html">
+          Explore Savanna Project
+        </a>
       </div>
+
+    </article>
+
+    <article class="card">
+
+      <img
+        src="images/forest-habitat-project-india.jpg"
+        alt="Forest habitat project 3D EVS model for school"
+      >
+
+      <div class="card-content">
+        <h3>Forest Habitat Project</h3>
+
+        <p>
+          Create a woodland habitat with trees, plants and animals for EVS, ecosystem and forest school projects.
+        </p>
+
+        <a class="button" href="forest-habitat-project.html">
+          Explore Forest Project
+        </a>
+      </div>
+
     </article>
 
   </div>
 
 </section>
 
-<section class="info">
+<section class="parent-section">
 
-  <div class="info-inner">
+  <div class="parent-inner">
 
-    <h2>Printable EVS Projects & 3D School Models</h2>
+    <h2>Made for Busy Parents Too</h2>
 
     <p>
-      School Projects India helps make project work simpler for students and parents.
-      Our printable projects can be used for EVS activities, animal habitat projects,
-      environmental studies, classroom displays and creative homework.
+      School project work can arrive at the worst possible moment.
+      Instead of searching for hours for ideas and materials, these projects give you a clear starting point that you can prepare at home.
     </p>
 
     <p>
-      Print the pages on A4 paper, cut out the pieces and build your own 3D school model.
-      No complicated materials are required.
+      The goal is not to do the project for your child.
+      You prepare the materials, and your child can cut, arrange, build, decorate and learn while creating the final model.
     </p>
 
   </div>
 
 </section>
 
+<section class="how-section">
+
+  <h2>How It Works</h2>
+
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-number">1</div>
+      <strong>Choose</strong>
+      Find the project topic your child needs.
+    </div>
+
+    <div class="step">
+      <div class="step-number">2</div>
+      <strong>Print</strong>
+      Print the project pages at home on A4 paper.
+    </div>
+
+    <div class="step">
+      <div class="step-number">3</div>
+      <strong>Cut</strong>
+      Cut out the animals, scenery and other pieces.
+    </div>
+
+    <div class="step">
+      <div class="step-number">4</div>
+      <strong>Build</strong>
+      Arrange and glue everything into a 3D model.
+    </div>
+
+    <div class="step">
+      <div class="step-number">5</div>
+      <strong>Learn</strong>
+      Talk about the habitat and take the finished project to school.
+    </div>
+
+  </div>
+
+</section>
+
+<section class="school-use">
+
+  <h2>Useful for School Work Across India</h2>
+
+  <p>
+    These projects can be used as inspiration for EVS homework, class activities, environmental studies,
+    habitat assignments, exhibitions, holiday homework and creative project work.
+  </p>
+
+  <p>
+    Suitable for parents looking for an easier way to help their child start a school project without taking away the fun of making it.
+  </p>
+
+</section>
+
 <footer>
-  © 2026 School Projects India
+  © 2026 School Projects India · Creative project ideas for students, parents and teachers
 </footer>
 
 </body>

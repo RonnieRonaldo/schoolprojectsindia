@@ -59,73 +59,81 @@
       const message = document.getElementById("download-message");
       const link = document.getElementById("secure-download-link");
 
-      if (!box || !message || !link) return;
-
-      box.hidden = false;
+      box.classList.remove("ready");
       message.textContent = "After successful payment, your secure PDF download will appear here.";
       link.hidden = true;
       link.removeAttribute("href");
-    }
     }
 
     function showDownloadStatus(messageText) {
       const box = document.getElementById("download-status");
       const message = document.getElementById("download-message");
+      const link = document.getElementById("secure-download-link");
 
-      if (!box || !message) return;
-
-      box.hidden = false;
+      box.classList.remove("ready");
       message.textContent = messageText;
+      link.hidden = true;
+      link.removeAttribute("href");
+    }
+
+    function showSecureDownload(downloadUrl) {
+      const box = document.getElementById("download-status");
+      const message = document.getElementById("download-message");
+      const link = document.getElementById("secure-download-link");
+
+      box.classList.add("ready");
+      message.textContent = "Payment confirmed. Your secure PDF download is ready.";
+      link.href = downloadUrl;
+      link.hidden = false;
     }
 
     async function claimOceanDownload(transactionId) {
       const maxAttempts = 12;
 
-      showDownloadStatus("Payment received. Preparing your secure download…");
+      showDownloadStatus("Payment confirmed. Preparing your secure download…");
 
       for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         try {
-          const response = await fetch(DOWNLOAD_WORKER + "/claim", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              transaction_id: transactionId
-            })
-          });
+          const response = await fetch(
+            "https://school-projects-india-downloads.gedeeldemailbox.workers.dev/claim",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                transaction_id: transactionId
+              })
+            }
+          );
 
           const data = await response.json();
 
           if (response.ok && data.status === "ready" && data.download_url) {
-            const link = document.getElementById("secure-download-link");
-
-            showDownloadStatus("Your Ocean Habitat Project is ready.");
-
-            link.href = data.download_url;
-            link.hidden = false;
-
+            showSecureDownload(data.download_url);
             return;
           }
 
-          if (response.status === 409 && data.status === "pending") {
-            showDownloadStatus("Payment confirmed. Preparing your secure download…");
-          } else {
-            throw new Error(data.error || "Download could not be prepared.");
+          if (response.status !== 409 || attempt === maxAttempts) {
+            showDownloadStatus(
+              "Your payment was received, but the download is not ready yet. Please contact us if this message remains visible."
+            );
+            return;
           }
         } catch (error) {
-
           if (attempt === maxAttempts) {
             showDownloadStatus(
-              "Your payment was successful, but the download link could not be prepared yet. Please refresh this page in a moment or contact School Projects India."
+              "Your payment was received, but the download could not be prepared. Please contact us."
             );
             return;
           }
         }
 
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise(resolve => setTimeout(resolve, 2500));
       }
     }
+
+    resetDownloadStatus();
   </script>
 
   <meta charset="UTF-8">

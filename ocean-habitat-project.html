@@ -1,25 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-50FJS680FY"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-50FJS680FY');
-</script>
+<head>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-50FJS680FY"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-50FJS680FY');
+  </script>
+
+  <!-- Paddle.js -->
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+  <script>
+    Paddle.Environment.set("sandbox");
+
+    Paddle.Initialize({
+      token: "test_bc693661d6b583355a4e75caf4f"
+    });
+
+    function openOceanCheckout() {
+      Paddle.Checkout.open({
+        items: [
+          {
+            priceId: "pri_01m16pd8dhwpq8yvmar5yg2yqk",
+            quantity: 1
+          }
+        ],
+        settings: {
+          displayMode: "overlay",
+          theme: "light",
+          locale: "en"
+        }
+      });
+    }
+  </script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Ocean Habitat Project for Kids | EVS 3D School Model India</title>
 
-  <meta name="description" content="Easy Ocean Habitat Project for kids in India. Printable EVS 3D ocean model with sea animals, coral and underwater scenery for school assignments, homework and habitat projects.">
+  <meta name="description" content="Easy Ocean Habitat Project for kids in India. Printable EVS 3D ocean model with sea animals, coral and underwater scenery for school assignments and habitat projects.">
 
   <link rel="canonical" href="https://schoolprojectsindia.com/ocean-habitat-project.html">
 
   <style>
+
     * {
       box-sizing: border-box;
     }
@@ -194,7 +224,7 @@
       margin-top: 8px;
     }
 
-    .video-wide {
+    .video {
       position: relative;
       width: 100%;
       margin: 28px auto 0;
@@ -205,7 +235,7 @@
       box-shadow: 0 5px 18px rgba(0,0,0,0.10);
     }
 
-    .video-wide iframe {
+    .video iframe {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -215,6 +245,50 @@
 
     .download-box {
       text-align: center;
+      border-top: 5px solid #d88619;
+    }
+
+    .price {
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 800;
+      color: #204f38;
+      margin: 24px 0 8px;
+    }
+
+    .price-note {
+      font-size: 14px !important;
+      color: #777 !important;
+      margin-top: 0;
+    }
+
+    .buy-button {
+      display: inline-block;
+      margin-top: 18px;
+      background: #d88619;
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      padding: 16px 30px;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .buy-button:hover {
+      transform: translateY(-1px);
+      opacity: 0.92;
+    }
+
+    .test-note {
+      margin: 18px auto 0;
+      max-width: 620px;
+      padding: 12px 16px;
+      background: #fff3df;
+      border-radius: 10px;
+      font-size: 14px !important;
+      color: #745522 !important;
     }
 
     .back {
@@ -259,8 +333,18 @@
       .hero p {
         font-size: 18px;
       }
+
+      .price {
+        font-size: 30px;
+      }
+
+      .buy-button {
+        width: 100%;
+      }
     }
+
   </style>
+
 </head>
 
 <body>
@@ -284,7 +368,7 @@
 
     <p>
       Need an ocean habitat project for school?
-      This printable 3D model gives children an easy way to create an underwater world with sea animals, coral and ocean scenery for EVS homework, habitat assignments and marine life projects.
+      This printable 3D model helps children create a colourful underwater scene with sea animals, coral and layered ocean scenery for EVS homework, habitat lessons and school assignments.
     </p>
 
   </div>
@@ -292,7 +376,7 @@
   <div>
     <img
       src="images/ocean-habitat-project-india.jpg"
-      alt="Ocean habitat project 3D EVS model with sea animals and coral for school in India"
+      alt="Ocean habitat project 3D EVS school model with sea animals and underwater scenery for children in India"
     >
   </div>
 
@@ -302,16 +386,14 @@
 
   <div class="parent-box">
 
-    <h2>A Simple Ocean Project for Busy Parents</h2>
+    <h2>An Easy Ocean Project for Busy Parents</h2>
 
     <p>
-      If your child comes home with an ocean habitat, sea animals or marine ecosystem assignment, it can be difficult to know where to start.
-      This printable project provides the main backgrounds, animals and scenery so you already have a clear structure for the model.
+      If your child suddenly needs an ocean habitat model, sea animals project or EVS assignment for school, this printable project gives you an easy starting point.
     </p>
 
     <p>
-      Parents can help prepare the printed pages while children do the cutting, arranging, gluing and decorating.
-      Shells, stones, sand, blue paper or other craft materials can be added to make the final project more personal.
+      The backgrounds, sea animals and underwater scenery are already illustrated. Children still do the creative work themselves by printing, cutting, arranging and building their own 3D ocean habitat.
     </p>
 
   </div>
@@ -323,28 +405,28 @@
   <h2>What Children Can Learn</h2>
 
   <p>
-    Building an ocean habitat model gives children a visual way to explore marine life and underwater ecosystems.
-    They can learn about different sea animals, coral reefs, ocean habitats and the way plants and animals share an environment.
+    Building an ocean habitat model gives children a visual way to explore life under the sea.
+    They can learn about marine animals, coral reefs, underwater plants and the different parts of an ocean ecosystem.
   </p>
 
   <p>
-    The project can be useful for EVS activities, sea animal projects, environmental studies, ecosystem lessons, homework and classroom exhibitions.
+    The finished model can be used for EVS projects, animal habitat lessons, sea creature activities, environmental studies, homework and school exhibitions.
   </p>
 
 </section>
 
 <section class="section">
 
-  <h2>See What Is Included</h2>
+  <h2>See the Printable Project</h2>
 
   <p>
-    The printable set contains colourful underwater backgrounds, coral scenery and sea animal pieces that can be cut out and arranged inside a box to create a layered 3D ocean scene.
+    The printable set contains illustrated underwater backgrounds, sea animals, coral and other pieces that children can cut out and arrange inside their project.
   </p>
 
   <img
     class="gallery-image"
     src="images/ocean-evs-project-printable-pages.jpg"
-    alt="Printable pages for ocean EVS project with sea animals coral and underwater background"
+    alt="Printable ocean EVS project pages with sea animals coral and underwater habitat scenery"
   >
 
   <div class="caption">
@@ -355,17 +437,17 @@
 
 <section class="section">
 
-  <h2>From Printed Pages to a 3D Ocean Model</h2>
+  <h2>Cut Out the Ocean Animals and Scenery</h2>
 
   <p>
-    The pieces are designed so children can build depth into the scene instead of simply making a flat poster.
-    Backgrounds form the underwater environment, while animals and coral can be placed at different positions inside the model.
+    The project includes separate printable parts so children can position the animals and scenery themselves.
+    This makes the finished school project more three-dimensional than a normal poster or worksheet.
   </p>
 
   <img
     class="gallery-image"
     src="images/ocean-evs-project-printable-parts.jpg"
-    alt="Ocean habitat project printable parts and backgrounds ready for cutting and building"
+    alt="Printable ocean habitat project parts with sea animals and underwater scenery for an EVS school model"
   >
 
 </section>
@@ -380,7 +462,7 @@
       <div class="step-number">1</div>
       <h3>Print</h3>
       <p>
-        Print the project pages at home on A4 paper or slightly thicker paper.
+        Print the ocean project pages at home on A4 paper or slightly thicker paper.
       </p>
     </div>
 
@@ -388,7 +470,7 @@
       <div class="step-number">2</div>
       <h3>Cut</h3>
       <p>
-        Cut out the sea animals, coral and underwater scenery pieces.
+        Cut out the sea animals, coral, plants and other underwater scenery.
       </p>
     </div>
 
@@ -396,7 +478,7 @@
       <div class="step-number">3</div>
       <h3>Build</h3>
       <p>
-        Arrange and glue the pieces inside a shoebox or similar cardboard box.
+        Arrange and glue the pieces inside a shoebox or similar cardboard box to create the 3D ocean habitat.
       </p>
     </div>
 
@@ -409,19 +491,19 @@
   <h2>See the Finished Ocean Model</h2>
 
   <p>
-    Children can arrange the pieces in different ways and add their own materials, so every finished ocean habitat can look a little different.
+    The different layers create depth inside the project and help turn the printable pages into a colourful 3D underwater world.
   </p>
 
   <div class="two-images">
 
     <img
       src="images/ocean-habitat-3d-school-project.jpg"
-      alt="Completed 3D ocean habitat school project with sea animals"
+      alt="Completed 3D ocean habitat school project with sea animals coral and underwater scenery"
     >
 
     <img
       src="images/ocean-habitat-model-sea-animals.jpg"
-      alt="Ocean habitat model with dolphin whale turtle coral and sea animals"
+      alt="Ocean habitat model with sea animals for EVS and school project activities"
     >
 
   </div>
@@ -430,17 +512,17 @@
 
 <section class="section">
 
-  <h2>Watch How the Ocean Habitat Looks</h2>
+  <h2>Watch the Ocean Habitat Project</h2>
 
   <p>
-    Take a quick look at the finished ocean habitat model and see how the printable pieces come together to create a colourful 3D underwater school project.
+    Watch the video to see how the printable pieces come together to create the finished underwater school project.
   </p>
 
-  <div class="video-wide">
+  <div class="video">
 
     <iframe
       src="https://www.youtube.com/embed/bqn7g-aQW5Y"
-      title="Ocean Habitat Project for Kids - 3D School Model"
+      title="Ocean Habitat Project for Kids - EVS 3D School Model"
       loading="lazy"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       allowfullscreen>
@@ -455,18 +537,17 @@
   <h2>Projects Made by Other Families</h2>
 
   <p>
-    One of the nicest things about this project is that families can use the same printable pages and still create very different results.
-    Children can add shells, plants, stones, craft materials and their own ideas.
+    Every finished model can look a little different. Children can change the placement of the animals, add their own craft materials and create their own version of the ocean habitat.
   </p>
 
   <img
     class="gallery-image"
     src="images/ocean-habitat-project-student-examples.jpg"
-    alt="Examples of ocean habitat school projects created by customers and families"
+    alt="Customer and student examples of completed printable ocean habitat school projects"
   >
 
   <div class="caption">
-    Different ocean habitat models made from the same printable project.
+    Examples of completed ocean habitat projects.
   </div>
 
 </section>
@@ -475,15 +556,25 @@
 
   <div class="download-box">
 
-    <h2>Want to Make This Ocean Habitat?</h2>
+    <h2>Make This Ocean Habitat Project</h2>
 
     <p>
-      The printable project provides the illustrated pieces needed to start building the model at home.
-      You only need a printer, scissors, glue and a suitable box.
+      Download the printable project and build the complete 3D ocean habitat at home.
+      You only need a printer, scissors, glue and a suitable cardboard box.
     </p>
 
-    <p>
-      The India download and checkout option will be added here soon.
+    <div class="price">₹199</div>
+    <p class="price-note">One-time purchase · Digital printable project</p>
+
+    <button
+      class="buy-button"
+      type="button"
+      onclick="openOceanCheckout()">
+      Buy Ocean Project – ₹199
+    </button>
+
+    <p class="test-note">
+      Test checkout only — no real payment will be charged while this page is connected to the Paddle Sandbox.
     </p>
 
   </div>
@@ -495,7 +586,7 @@
 </div>
 
 <footer>
-  © 2026 School Projects India · Creative project ideas for Indian families
+  © 2026 School Projects India · Creative project ideas for students, parents and teachers
 </footer>
 
 </body>

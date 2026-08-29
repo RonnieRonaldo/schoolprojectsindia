@@ -24,7 +24,10 @@
       token: "test_bc693661d6b583355a4e75caf4f",
       eventCallback: function(event) {
         if (event && event.name === "checkout.completed") {
-          const transactionId = event.data && event.data.transaction_id;
+          const transactionId =
+            event.data && event.data.id && event.data.id.startsWith("txn_")
+              ? event.data.id
+              : event.data && event.data.transaction_id;
 
           if (transactionId) {
             claimOceanDownload(transactionId);

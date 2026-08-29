@@ -23,15 +23,25 @@
     Paddle.Initialize({
       token: "test_bc693661d6b583355a4e75caf4f",
       eventCallback: function(event) {
-        if (event && event.name === "checkout.completed") {
-          const transactionId =
-            event.data && event.data.id && event.data.id.startsWith("txn_")
-              ? event.data.id
-              : event.data && event.data.transaction_id;
+        if (!event || !event.data) return;
 
-          if (transactionId) {
-            claimOceanDownload(transactionId);
-          }
+        const transactionId =
+          event.data.transaction_id ||
+          (event.data.id && event.data.id.startsWith("txn_") ? event.data.id : null);
+
+        if (
+          transactionId &&
+          (
+            event.name === "checkout.loaded" ||
+            event.name === "checkout.payment.initiated" ||
+            event.name === "checkout.completed"
+          )
+        ) {
+          rememberOceanTransaction(transactionId);
+        }
+
+        if (event.name === "checkout.completed" && transactionId) {
+          claimOceanDownload(transactionId);
         }
       }
     });
@@ -49,9 +59,53 @@
         settings: {
           displayMode: "overlay",
           theme: "light",
-          locale: "en"
+          locale: "en",
+          successUrl: "https://schoolprojectsindia.com/ocean-habitat-project.html?payment=success#download"
         }
       });
+    }
+
+    const OCEAN_TRANSACTION_KEY = "spi_ocean_transaction";
+
+    function rememberOceanTransaction(transactionId) {
+      try {
+        localStorage.setItem(
+          OCEAN_TRANSACTION_KEY,
+          JSON.stringify({
+            transaction_id: transactionId,
+            saved_at: Date.now()
+          })
+        );
+      } catch (error) {
+        // The normal checkout flow can still continue if storage is unavailable.
+      }
+    }
+
+    function getRememberedOceanTransaction() {
+      try {
+        const raw = localStorage.getItem(OCEAN_TRANSACTION_KEY);
+        if (!raw) return null;
+
+        const saved = JSON.parse(raw);
+
+        if (
+          !saved ||
+          !saved.transaction_id ||
+          !saved.transaction_id.startsWith("txn_")
+        ) {
+          return null;
+        }
+
+        // Only reuse a recently created checkout transaction.
+        if (!saved.saved_at || Date.now() - saved.saved_at > 60 * 60 * 1000) {
+          localStorage.removeItem(OCEAN_TRANSACTION_KEY);
+          return null;
+        }
+
+        return saved.transaction_id;
+      } catch (error) {
+        return null;
+      }
     }
 
     function resetDownloadStatus() {
@@ -88,9 +142,9 @@
     }
 
     async function claimOceanDownload(transactionId) {
-      const maxAttempts = 12;
+      const maxAttempts = 120;
 
-      showDownloadStatus("Payment confirmed. Preparing your secure download…");
+      showDownloadStatus("Payment received. Preparing your secure download…");
 
       for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         try {
@@ -120,6 +174,12 @@
             );
             return;
           }
+
+          if (attempt === 1) {
+            showDownloadStatus(
+              "Payment authorized. UPI can take a few minutes to finish processing. Your download will appear here automatically."
+            );
+          }
         } catch (error) {
           if (attempt === maxAttempts) {
             showDownloadStatus(
@@ -129,11 +189,29 @@
           }
         }
 
-        await new Promise(resolve => setTimeout(resolve, 2500));
+        await new Promise(resolve => setTimeout(resolve, 5000));
       }
     }
 
-    resetDownloadStatus();
+    function resumeOceanDownloadAfterReturn() {
+      resetDownloadStatus();
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("payment") !== "success") return;
+
+      const transactionId = getRememberedOceanTransaction();
+
+      if (!transactionId) {
+        showDownloadStatus(
+          "Payment successful. We could not automatically reconnect this browser to the order. Please use your Paddle receipt or contact us for help."
+        );
+        return;
+      }
+
+      claimOceanDownload(transactionId);
+    }
+
+    document.addEventListener("DOMContentLoaded", resumeOceanDownloadAfterReturn);
   </script>
 
   <meta charset="UTF-8">
@@ -686,7 +764,7 @@
 
 <section class="section">
 
-  <div class="download-box">
+  <div id="download" class="download-box">
 
     <h2>Make This Ocean Habitat Project</h2>
 

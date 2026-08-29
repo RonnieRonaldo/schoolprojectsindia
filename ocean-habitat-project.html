@@ -42,6 +42,17 @@
     function openOceanCheckout() {
       resetDownloadStatus();
 
+    const retestButton = document.getElementById("retest-claim-button");
+    if (retestButton) {
+      retestButton.addEventListener("click", async () => {
+        retestButton.disabled = true;
+        showDownloadStatus("Checking your previous successful payment…");
+        showDebug("Retesting transaction: txn_01m17h2kxs4vphqaqjhb4canne");
+        await claimOceanDownload("txn_01m17h2kxs4vphqaqjhb4canne");
+        retestButton.disabled = false;
+      });
+    }
+
       Paddle.Checkout.open({
         items: [
           {
@@ -755,6 +766,12 @@
     <div class="debug-box">
       <strong>Temporary checkout test:</strong>
       <div id="debug-output">Waiting for checkout event…</div>
+      <button
+        id="retest-claim-button"
+        type="button"
+        style="margin-top:12px;padding:10px 14px;border:0;border-radius:8px;cursor:pointer;">
+        Retest previous payment
+      </button>
     </div>
 
   </div>

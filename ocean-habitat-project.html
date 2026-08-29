@@ -30,10 +30,7 @@
               : event.data && event.data.transaction_id;
 
           if (transactionId) {
-            showDebug("Paddle checkout.completed received. Transaction ID: " + transactionId);
             claimOceanDownload(transactionId);
-          } else {
-            showDebug("Paddle checkout.completed received, but no transaction ID was found. Event data: " + JSON.stringify(event.data));
           }
         }
       }
@@ -57,18 +54,6 @@
       });
     }
 
-    async function retestPreviousPayment() {
-      const button = document.getElementById("retest-claim-button");
-      if (button) button.disabled = true;
-
-      showDownloadStatus("Checking your previous successful payment…");
-      showDebug("Retesting transaction: txn_01m17h2kxs4vphqaqjhb4canne");
-
-      await claimOceanDownload("txn_01m17h2kxs4vphqaqjhb4canne");
-
-      if (button) button.disabled = false;
-    }
-
     function resetDownloadStatus() {
       const box = document.getElementById("download-status");
       const message = document.getElementById("download-message");
@@ -80,18 +65,7 @@
       message.textContent = "After successful payment, your secure PDF download will appear here.";
       link.hidden = true;
       link.removeAttribute("href");
-
-      const debug = document.getElementById("debug-output");
-      if (debug) {
-        debug.textContent = "Waiting for checkout event…";
-      }
     }
-
-    function showDebug(messageText) {
-      const debug = document.getElementById("debug-output");
-      if (debug) {
-        debug.textContent = messageText;
-      }
     }
 
     function showDownloadStatus(messageText) {
@@ -123,13 +97,6 @@
 
           const data = await response.json();
 
-          showDebug(
-            "Claim attempt " + attempt +
-            " — HTTP " + response.status +
-            " — Transaction ID: " + transactionId +
-            " — Response: " + JSON.stringify(data)
-          );
-
           if (response.ok && data.status === "ready" && data.download_url) {
             const link = document.getElementById("secure-download-link");
 
@@ -147,11 +114,6 @@
             throw new Error(data.error || "Download could not be prepared.");
           }
         } catch (error) {
-          showDebug(
-            "Claim attempt " + attempt +
-            " failed — Transaction ID: " + transactionId +
-            " — Error: " + (error && error.message ? error.message : String(error))
-          );
 
           if (attempt === maxAttempts) {
             showDownloadStatus(
@@ -453,20 +415,6 @@
       opacity: 0.92;
     }
 
-    .debug-box {
-      margin: 14px auto 0;
-      max-width: 620px;
-      padding: 12px 14px;
-      background: #f4f4f4;
-      border: 1px dashed #999;
-      border-radius: 10px;
-      text-align: left;
-      font-family: monospace;
-      font-size: 12px;
-      color: #444;
-      overflow-wrap: anywhere;
-    }
-
     .back {
       text-align: center;
       padding: 10px 20px 50px;
@@ -763,20 +711,6 @@
         Download Ocean Habitat Project PDF
       </a>
     </div>
-
-    <div class="debug-box">
-      <strong>Temporary checkout test:</strong>
-      <div id="debug-output">Waiting for checkout event…</div>
-      <button
-        id="retest-claim-button"
-        type="button"
-        onclick="retestPreviousPayment()"
-        style="margin-top:12px;padding:10px 14px;border:0;border-radius:8px;cursor:pointer;">
-        Retest previous payment
-      </button>
-    </div>
-
-  </div>
 
 </section>
 

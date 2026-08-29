@@ -30,7 +30,10 @@
               : event.data && event.data.transaction_id;
 
           if (transactionId) {
+            showDebug("Paddle checkout.completed received. Transaction ID: " + transactionId);
             claimOceanDownload(transactionId);
+          } else {
+            showDebug("Paddle checkout.completed received, but no transaction ID was found. Event data: " + JSON.stringify(event.data));
           }
         }
       }
@@ -65,6 +68,18 @@
       message.textContent = "After successful payment, your secure PDF download will appear here.";
       link.hidden = true;
       link.removeAttribute("href");
+
+      const debug = document.getElementById("debug-output");
+      if (debug) {
+        debug.textContent = "Waiting for checkout event…";
+      }
+    }
+
+    function showDebug(messageText) {
+      const debug = document.getElementById("debug-output");
+      if (debug) {
+        debug.textContent = messageText;
+      }
     }
 
     function showDownloadStatus(messageText) {
@@ -96,6 +111,13 @@
 
           const data = await response.json();
 
+          showDebug(
+            "Claim attempt " + attempt +
+            " — HTTP " + response.status +
+            " — Transaction ID: " + transactionId +
+            " — Response: " + JSON.stringify(data)
+          );
+
           if (response.ok && data.status === "ready" && data.download_url) {
             const link = document.getElementById("secure-download-link");
 
@@ -113,6 +135,12 @@
             throw new Error(data.error || "Download could not be prepared.");
           }
         } catch (error) {
+          showDebug(
+            "Claim attempt " + attempt +
+            " failed — Transaction ID: " + transactionId +
+            " — Error: " + (error && error.message ? error.message : String(error))
+          );
+
           if (attempt === maxAttempts) {
             showDownloadStatus(
               "Your payment was successful, but the download link could not be prepared yet. Please refresh this page in a moment or contact School Projects India."
@@ -413,6 +441,20 @@
       opacity: 0.92;
     }
 
+    .debug-box {
+      margin: 14px auto 0;
+      max-width: 620px;
+      padding: 12px 14px;
+      background: #f4f4f4;
+      border: 1px dashed #999;
+      border-radius: 10px;
+      text-align: left;
+      font-family: monospace;
+      font-size: 12px;
+      color: #444;
+      overflow-wrap: anywhere;
+    }
+
     .back {
       text-align: center;
       padding: 10px 20px 50px;
@@ -708,6 +750,11 @@
         hidden>
         Download Ocean Habitat Project PDF
       </a>
+    </div>
+
+    <div class="debug-box">
+      <strong>Temporary checkout test:</strong>
+      <div id="debug-output">Waiting for checkout event…</div>
     </div>
 
   </div>

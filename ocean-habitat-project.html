@@ -16,13 +16,26 @@
   <!-- Paddle.js -->
   <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
   <script>
+    const DOWNLOAD_WORKER = "https://school-projects-india-downloads.gedeeldemailbox.workers.dev";
+
     Paddle.Environment.set("sandbox");
 
     Paddle.Initialize({
-      token: "test_bc693661d6b583355a4e75caf4f"
+      token: "test_bc693661d6b583355a4e75caf4f",
+      eventCallback: function(event) {
+        if (event && event.name === "checkout.completed") {
+          const transactionId = event.data && event.data.transaction_id;
+
+          if (transactionId) {
+            claimOceanDownload(transactionId);
+          }
+        }
+      }
     });
 
     function openOceanCheckout() {
+      resetDownloadStatus();
+
       Paddle.Checkout.open({
         items: [
           {
@@ -36,6 +49,77 @@
           locale: "en"
         }
       });
+    }
+
+    function resetDownloadStatus() {
+      const box = document.getElementById("download-status");
+      const message = document.getElementById("download-message");
+      const link = document.getElementById("secure-download-link");
+
+      if (!box || !message || !link) return;
+
+      box.hidden = true;
+      message.textContent = "";
+      link.hidden = true;
+      link.removeAttribute("href");
+    }
+
+    function showDownloadStatus(messageText) {
+      const box = document.getElementById("download-status");
+      const message = document.getElementById("download-message");
+
+      if (!box || !message) return;
+
+      box.hidden = false;
+      message.textContent = messageText;
+    }
+
+    async function claimOceanDownload(transactionId) {
+      const maxAttempts = 12;
+
+      showDownloadStatus("Payment received. Preparing your secure download…");
+
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          const response = await fetch(DOWNLOAD_WORKER + "/claim", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              transaction_id: transactionId
+            })
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.status === "ready" && data.download_url) {
+            const link = document.getElementById("secure-download-link");
+
+            showDownloadStatus("Your Ocean Habitat Project is ready.");
+
+            link.href = data.download_url;
+            link.hidden = false;
+
+            return;
+          }
+
+          if (response.status === 409 && data.status === "pending") {
+            showDownloadStatus("Payment confirmed. Preparing your secure download…");
+          } else {
+            throw new Error(data.error || "Download could not be prepared.");
+          }
+        } catch (error) {
+          if (attempt === maxAttempts) {
+            showDownloadStatus(
+              "Your payment was successful, but the download link could not be prepared yet. Please refresh this page in a moment or contact School Projects India."
+            );
+            return;
+          }
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
     }
   </script>
 
@@ -289,6 +373,37 @@
       border-radius: 10px;
       font-size: 14px !important;
       color: #745522 !important;
+    }
+
+    .download-status {
+      margin: 22px auto 0;
+      max-width: 620px;
+      padding: 18px;
+      background: #f0f7f2;
+      border: 1px solid #d5e7da;
+      border-radius: 12px;
+    }
+
+    .download-status p {
+      margin: 0;
+      color: #28583f !important;
+      font-size: 16px !important;
+      font-weight: 700;
+    }
+
+    .secure-download-link {
+      display: inline-block;
+      margin-top: 14px;
+      background: #204f38;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 14px 24px;
+      font-weight: 800;
+    }
+
+    .secure-download-link:hover {
+      opacity: 0.92;
     }
 
     .back {
@@ -576,6 +691,17 @@
     <p class="test-note">
       Test checkout only — no real payment will be charged while this page is connected to the Paddle Sandbox.
     </p>
+
+    <div id="download-status" class="download-status" hidden>
+      <p id="download-message"></p>
+      <a
+        id="secure-download-link"
+        class="secure-download-link"
+        href="#"
+        hidden>
+        Download Ocean Habitat Project PDF
+      </a>
+    </div>
 
   </div>
 

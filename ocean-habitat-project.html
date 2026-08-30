@@ -41,6 +41,11 @@
         }
 
         if (event.name === "checkout.completed" && transactionId) {
+          try {
+            Paddle.Checkout.close();
+          } catch (error) {
+            // Continue with secure fulfillment even if the overlay is already closed.
+          }
           claimOceanDownload(transactionId);
         }
       }

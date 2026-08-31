@@ -1,791 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-50FJS680FY"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-50FJS680FY');
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','G-50FJS680FY');
 </script>
-  <!-- Paddle.js -->
-  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
-  <script>
-    const DOWNLOAD_WORKER = "https://school-projects-india-downloads.gedeeldemailbox.workers.dev";
-
-    Paddle.Environment.set("sandbox");
-
-    Paddle.Initialize({
-      token: "test_bc693661d6b583355a4e75caf4f",
-      eventCallback: function(event) {
-        if (!event || !event.data) return;
-
-        const transactionId =
-          event.data.transaction_id ||
-          (event.data.id && event.data.id.startsWith("txn_") ? event.data.id : null);
-
-        if (
-          transactionId &&
-          (
-            event.name === "checkout.loaded" ||
-            event.name === "checkout.payment.initiated" ||
-            event.name === "checkout.completed"
-          )
-        ) {
-          rememberDesertTransaction(transactionId);
-        }
-
-        if (event.name === "checkout.completed" && transactionId) {
-          try {
-            Paddle.Checkout.close();
-          } catch (error) {
-            // Continue with secure fulfillment even if the overlay is already closed.
-          }
-          claimDesertDownload(transactionId);
-        }
-      }
-    });
-
-    function openDesertCheckout() {
-      resetDownloadStatus();
-
-      Paddle.Checkout.open({
-        items: [
-          {
-            priceId: "pri_01m18qvwnkzapgx6w5qxtdg9gy",
-            quantity: 1
-          }
-        ],
-        settings: {
-          displayMode: "overlay",
-          theme: "light",
-          locale: "en",
-          successUrl: "https://schoolprojectsindia.com/desert-habitat-project.html?payment=success#download"
-        }
-      });
-    }
-
-    const DESERT_TRANSACTION_KEY = "spi_desert_transaction";
-
-    function rememberDesertTransaction(transactionId) {
-      try {
-        localStorage.setItem(
-          DESERT_TRANSACTION_KEY,
-          JSON.stringify({
-            transaction_id: transactionId,
-            saved_at: Date.now()
-          })
-        );
-      } catch (error) {
-        // The normal checkout flow can still continue if storage is unavailable.
-      }
-    }
-
-    function getRememberedDesertTransaction() {
-      try {
-        const raw = localStorage.getItem(DESERT_TRANSACTION_KEY);
-        if (!raw) return null;
-
-        const saved = JSON.parse(raw);
-
-        if (
-          !saved ||
-          !saved.transaction_id ||
-          !saved.transaction_id.startsWith("txn_")
-        ) {
-          return null;
-        }
-
-        // Only reuse a recently created checkout transaction.
-        if (!saved.saved_at || Date.now() - saved.saved_at > 60 * 60 * 1000) {
-          localStorage.removeItem(DESERT_TRANSACTION_KEY);
-          return null;
-        }
-
-        return saved.transaction_id;
-      } catch (error) {
-        return null;
-      }
-    }
-
-    function resetDownloadStatus() {
-      const box = document.getElementById("download-status");
-      const message = document.getElementById("download-message");
-      const link = document.getElementById("secure-download-link");
-
-      box.classList.remove("ready");
-      message.textContent = "After successful payment, your secure PDF download will appear here.";
-      link.hidden = true;
-      link.removeAttribute("href");
-    }
-
-    function showDownloadStatus(messageText) {
-      const box = document.getElementById("download-status");
-      const message = document.getElementById("download-message");
-      const link = document.getElementById("secure-download-link");
-
-      box.classList.remove("ready");
-      message.textContent = messageText;
-      link.hidden = true;
-      link.removeAttribute("href");
-    }
-
-    function showSecureDownload(downloadUrl) {
-      const box = document.getElementById("download-status");
-      const message = document.getElementById("download-message");
-      const link = document.getElementById("secure-download-link");
-
-      box.classList.add("ready");
-      message.textContent = "Payment confirmed. Your secure PDF download is ready.";
-      link.href = downloadUrl;
-      link.hidden = false;
-    }
-
-    async function claimDesertDownload(transactionId) {
-      const maxAttempts = 120;
-
-      showDownloadStatus("Payment received. Preparing your secure download…");
-
-      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        try {
-          const response = await fetch(
-            "https://school-projects-india-downloads.gedeeldemailbox.workers.dev/claim",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                transaction_id: transactionId
-              })
-            }
-          );
-
-          const data = await response.json();
-
-          if (response.ok && data.status === "ready" && data.download_url) {
-            showSecureDownload(data.download_url);
-            return;
-          }
-
-          if (response.status !== 409 || attempt === maxAttempts) {
-            showDownloadStatus(
-              "Your payment was received, but the download is not ready yet. Please contact us if this message remains visible."
-            );
-            return;
-          }
-
-          if (attempt === 1) {
-            showDownloadStatus(
-              "Payment authorized. UPI can take a few minutes to finish processing. Your download will appear here automatically."
-            );
-          }
-        } catch (error) {
-          if (attempt === maxAttempts) {
-            showDownloadStatus(
-              "Your payment was received, but the download could not be prepared. Please contact us."
-            );
-            return;
-          }
-        }
-
-        await new Promise(resolve => setTimeout(resolve, 5000));
-      }
-    }
-
-    function resumeDesertDownloadAfterReturn() {
-      resetDownloadStatus();
-
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("payment") !== "success") return;
-
-      const transactionId = getRememberedDesertTransaction();
-
-      if (!transactionId) {
-        showDownloadStatus(
-          "Payment successful. We could not automatically reconnect this browser to the order. Please use your Paddle receipt or contact us for help."
-        );
-        return;
-      }
-
-      claimDesertDownload(transactionId);
-    }
-
-    document.addEventListener("DOMContentLoaded", resumeDesertDownloadAfterReturn);
-  </script>
-
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Desert Habitat Project for Kids | EVS 3D School Model India</title>
-
-  <meta name="description" content="Easy Desert Habitat Project for kids in India. Printable EVS 3D desert model with camels, cactus, desert animals and scenery for school assignments and habitat projects.">
-
-  <link rel="canonical" href="https://schoolprojectsindia.com/desert-habitat-project.html">
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #fffaf2;
-      color: #2d2d2d;
-      line-height: 1.65;
-    }
-
-    .india-bar {
-      background: #fff3df;
-      color: #6c4d1f;
-      text-align: center;
-      padding: 9px 15px;
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    header {
-      background: #ffffff;
-      border-bottom: 1px solid #eee4d4;
-      padding: 20px;
-      text-align: center;
-    }
-
-    .logo {
-      font-size: 30px;
-      font-weight: 800;
-      color: #1f5b3b;
-      text-decoration: none;
-    }
-
-    .tagline {
-      margin-top: 3px;
-      color: #777;
-      font-size: 14px;
-    }
-
-    .hero {
-      max-width: 1120px;
-      margin: auto;
-      padding: 58px 20px 40px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 42px;
-      align-items: center;
-    }
-
-    .hero-label {
-      display: inline-block;
-      background: #fff0d9;
-      color: #9b5a00;
-      padding: 7px 14px;
-      border-radius: 999px;
-      font-weight: 700;
-      font-size: 14px;
-      margin-bottom: 17px;
-    }
-
-    .hero h1 {
-      color: #204f38;
-      font-size: 46px;
-      line-height: 1.12;
-      margin: 0 0 18px;
-    }
-
-    .hero p {
-      font-size: 19px;
-      color: #5b5b5b;
-      margin: 0;
-    }
-
-    .hero img {
-      width: 100%;
-      display: block;
-      border-radius: 18px;
-      box-shadow: 0 7px 24px rgba(0,0,0,0.12);
-    }
-
-    .section {
-      max-width: 920px;
-      margin: auto;
-      padding: 48px 20px;
-    }
-
-    .section h2 {
-      color: #204f38;
-      font-size: 31px;
-      margin-top: 0;
-      margin-bottom: 16px;
-    }
-
-    .section p {
-      font-size: 18px;
-      color: #595959;
-    }
-
-    .parent-box,
-    .download-box {
-      background: #ffffff;
-      padding: 32px;
-      border-radius: 16px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-    }
-
-    .parent-box {
-      border-top: 5px solid #d88619;
-    }
-
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      margin-top: 28px;
-    }
-
-    .step {
-      background: #ffffff;
-      padding: 25px 20px;
-      text-align: center;
-      border-radius: 14px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.06);
-    }
-
-    .step-number {
-      width: 38px;
-      height: 38px;
-      margin: 0 auto 12px;
-      border-radius: 50%;
-      background: #d88619;
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-    }
-
-    .step h3 {
-      margin: 0 0 8px;
-      color: #28583f;
-    }
-
-    .gallery-image {
-      width: 100%;
-      display: block;
-      border-radius: 16px;
-      margin-top: 25px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    }
-
-    .two-images {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-top: 25px;
-    }
-
-    .two-images img {
-      width: 100%;
-      display: block;
-      border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    }
-
-    .caption {
-      color: #777;
-      text-align: center;
-      font-size: 14px;
-      margin-top: 8px;
-    }
-
-    .video-short {
-      position: relative;
-      width: 100%;
-      max-width: 430px;
-      margin: 28px auto 0;
-      aspect-ratio: 9 / 16;
-      background: #000;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 5px 18px rgba(0,0,0,0.10);
-    }
-
-    .video-short iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-
-    .download-box {
-      text-align: center;
-    }
-
-    .download-box {
-      text-align: center;
-      border-top: 5px solid #d88619;
-    }
-
-    .price {
-      font-size: 34px;
-      line-height: 1;
-      font-weight: 800;
-      color: #204f38;
-      margin: 24px 0 8px;
-    }
-
-    .price-note {
-      font-size: 14px !important;
-      color: #777 !important;
-      margin-top: 0;
-    }
-
-    .buy-button {
-      display: inline-block;
-      margin-top: 18px;
-      background: #d88619;
-      color: #ffffff;
-      border: none;
-      border-radius: 10px;
-      padding: 16px 30px;
-      font-size: 18px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    .test-note {
-      margin: 18px auto 0;
-      max-width: 620px;
-      padding: 12px 16px;
-      background: #fff3df;
-      border-radius: 10px;
-      font-size: 14px !important;
-      color: #745522 !important;
-    }
-
-    .download-status {
-      margin: 22px auto 0;
-      max-width: 620px;
-      padding: 18px;
-      background: #f0f7f2;
-      border: 1px solid #d5e7da;
-      border-radius: 12px;
-    }
-
-    .download-status p {
-      margin: 0;
-      color: #28583f !important;
-      font-size: 16px !important;
-      font-weight: 700;
-    }
-
-    .secure-download-link {
-      display: inline-block;
-      margin-top: 14px;
-      background: #204f38;
-      color: #ffffff;
-      text-decoration: none;
-      border-radius: 10px;
-      padding: 14px 24px;
-      font-weight: 800;
-    }
-
-    .secure-download-link[hidden] {
-      display: none;
-    }
-
-    .back {
-      text-align: center;
-      padding: 10px 20px 50px;
-    }
-
-    .back a {
-      color: #24563d;
-      text-decoration: none;
-      font-weight: 700;
-    }
-
-    footer {
-      background: #173e2c;
-      color: #e9eee9;
-      text-align: center;
-      padding: 32px 20px;
-      font-size: 14px;
-    }
-
-    @media (max-width: 850px) {
-      .hero {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-copy {
-        text-align: center;
-      }
-    }
-
-    @media (max-width: 700px) {
-      .steps,
-      .two-images {
-        grid-template-columns: 1fr;
-      }
-
-      .hero h1 {
-        font-size: 35px;
-      }
-
-      .hero p {
-        font-size: 18px;
-      }
-    }
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Desert Habitat Project for Kids | EVS 3D School Model India</title>
+<meta name="description" content="Easy Desert Habitat Project for kids in India. Printable EVS 3D desert model with camels, cactus, desert animals and scenery for school assignments and habitat projects.">
+<link rel="canonical" href="https://schoolprojectsindia.com/desert-habitat-project.html">
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#fffaf2;color:#2d2d2d;line-height:1.65}
+.india-bar{background:#fff3df;color:#6c4d1f;text-align:center;padding:9px 15px;font-size:14px;font-weight:700}
+header{background:#fff;border-bottom:1px solid #eee4d4;padding:20px;text-align:center}.logo{font-size:30px;font-weight:800;color:#1f5b3b;text-decoration:none}.tagline{margin-top:3px;color:#777;font-size:14px}
+.hero{max-width:1120px;margin:auto;padding:58px 20px 40px;display:grid;grid-template-columns:1fr 1fr;gap:42px;align-items:center}.hero-label{display:inline-block;background:#fff0d9;color:#9b5a00;padding:7px 14px;border-radius:999px;font-weight:700;font-size:14px;margin-bottom:17px}
+.hero h1{color:#204f38;font-size:46px;line-height:1.12;margin:0 0 18px}.hero p{font-size:19px;color:#5b5b5b;margin:0}.hero img,.gallery-image,.two-images img{width:100%;display:block;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.section{max-width:920px;margin:auto;padding:48px 20px}.section h2{color:#204f38;font-size:31px;margin-top:0;margin-bottom:16px}.section p{font-size:18px;color:#595959}
+.parent-box,.download-box{background:#fff;padding:32px;border-radius:16px;box-shadow:0 4px 15px rgba(0,0,0,.06);border-top:5px solid #d88619}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:28px}.step{background:#fff;padding:25px 20px;text-align:center;border-radius:14px;box-shadow:0 3px 12px rgba(0,0,0,.06)}.step-number{width:38px;height:38px;margin:0 auto 12px;border-radius:50%;background:#d88619;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}.step h3{margin:0 0 8px;color:#28583f}
+.gallery-image{margin-top:25px}.two-images{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:25px}.video-short{position:relative;width:100%;max-width:430px;margin:28px auto 0;aspect-ratio:9/16;background:#000;border-radius:16px;overflow:hidden;box-shadow:0 5px 18px rgba(0,0,0,.1)}.video-short iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.download-box{text-align:center}.buy-button,.download-button{display:inline-block;margin-top:12px;background:#d88619;color:#fff;border:0;border-radius:10px;padding:15px 24px;font-size:18px;font-weight:800;text-decoration:none;cursor:pointer}.buy-button:hover,.download-button:hover{opacity:.92}.checkout-status{margin-top:16px;font-size:15px;color:#666}.download-area{display:none;margin-top:22px;padding-top:20px;border-top:1px solid #eee4d4}
+.back{text-align:center;padding:10px 20px 50px}.back a{color:#24563d;text-decoration:none;font-weight:700}.legal-links{margin-top:10px}footer{background:#173e2c;color:#e9eee9;text-align:center;padding:32px 20px;font-size:14px}footer a{color:#fff;margin:0 5px}
+@media(max-width:850px){.hero{grid-template-columns:1fr}.hero-copy{text-align:center}}@media(max-width:700px){.steps,.two-images{grid-template-columns:1fr}.hero h1{font-size:35px}.hero p{font-size:18px}}
+</style>
 </head>
-
 <body>
-
-<div class="india-bar">
-  🇮🇳 Easy school project ideas for students, parents & teachers in India
-</div>
-
-<header>
-  <a class="logo" href="/">School Projects India</a>
-  <div class="tagline">EVS Projects · 3D Models · Habitat Projects · School Activities</div>
-</header>
-
-<section class="hero">
-
-  <div class="hero-copy">
-
-    <div class="hero-label">Desert Habitat · EVS · 3D School Model</div>
-
-    <h1>Desert Habitat Project for Kids</h1>
-
-    <p>
-      Need a desert habitat project for school?
-      This printable 3D model helps children create a colourful desert scene with camels, cactus plants, desert animals, rocks and a tent for EVS homework, habitat assignments and school projects.
-    </p>
-
-  </div>
-
-  <div>
-    <img
-      src="images/desert-habitat-project-india.jpg"
-      alt="Desert habitat project 3D EVS school model with camels cactus and tent in India"
-    >
-  </div>
-
-</section>
-
-<section class="section">
-
-  <div class="parent-box">
-
-    <h2>An Easy Desert Project for Busy Parents</h2>
-
-    <p>
-      If your child suddenly needs a desert habitat model, camel habitat project or EVS assignment for school, starting from an empty box can take more time than expected.
-      This printable project gives you the main scenery, animals and desert elements so the model already has a clear structure.
-    </p>
-
-    <p>
-      Children can still make the project their own by deciding where the camels, cactus plants, tent, rocks and desert animals should go.
-      Extra sand, stones or craft materials can also be added at home.
-    </p>
-
-  </div>
-
-</section>
-
-<section class="section">
-
-  <h2>What Children Can Learn</h2>
-
-  <p>
-    A desert habitat model is a simple visual way to learn how animals and plants survive in hot and dry environments.
-    Children can explore desert animals, camels, cactus plants, water scarcity and the different features of a desert ecosystem.
-  </p>
-
-  <p>
-    The finished model can be used for EVS projects, habitat lessons, ecosystem activities, environmental studies, homework and school exhibitions.
-  </p>
-
-</section>
-
-<section class="section">
-
-  <h2>See What Is Included</h2>
-
-  <p>
-    The printable pages include desert backgrounds, ground sections, camels, cactus plants, rocks, a colourful tent and other scenery pieces for building a layered 3D desert model.
-  </p>
-
-  <img
-    class="gallery-image"
-    src="images/desert-evs-project-printable-parts.jpg"
-    alt="Printable parts for desert EVS project with camels cactus rocks tent and desert scenery"
-  >
-
-  <div class="caption">
-    Printable parts used to build the desert habitat school project.
-  </div>
-
-</section>
-
-<section class="section">
-
-  <h2>Build a 3D Desert Scene</h2>
-
-  <p>
-    Instead of making only a flat poster, children can arrange the printable pieces at different depths inside a shoebox or cardboard box.
-    This gives the desert habitat a much stronger 3D effect and makes it easier to see where different plants and animals live.
-  </p>
-
-  <div class="two-images">
-
-    <img
-      src="images/desert-habitat-model-camels-cactus.jpg"
-      alt="Desert habitat model with camels cactus tent and desert plants"
-    >
-
-    <img
-      src="images/desert-habitat-project-3d-details.jpg"
-      alt="3D desert school project showing camel tent cactus snake and desert scenery"
-    >
-
-  </div>
-
-</section>
-
-<section class="section">
-
-  <h2>How to Make the Desert Habitat Project</h2>
-
-  <div class="steps">
-
-    <div class="step">
-      <div class="step-number">1</div>
-      <h3>Print</h3>
-      <p>
-        Print the desert project pages at home on A4 paper or slightly thicker paper.
-      </p>
-    </div>
-
-    <div class="step">
-      <div class="step-number">2</div>
-      <h3>Cut</h3>
-      <p>
-        Cut out the camels, cactus plants, tent, rocks and other desert pieces.
-      </p>
-    </div>
-
-    <div class="step">
-      <div class="step-number">3</div>
-      <h3>Build</h3>
-      <p>
-        Arrange and glue the pieces inside a shoebox or similar cardboard box to create the 3D model.
-      </p>
-    </div>
-
-  </div>
-
-</section>
-
-<section class="section">
-
-  <h2>See the Finished Desert Model</h2>
-
-  <p>
-    The finished project combines a large desert landscape with smaller 3D elements such as camels, plants, animals, rocks and a tent.
-    Children can move the pieces around before gluing them down and create their own version of the habitat.
-  </p>
-
-  <div class="two-images">
-
-    <img
-      src="images/desert-3d-school-project-india.jpg"
-      alt="Complete desert 3D school project for EVS habitat assignment in India"
-    >
-
-    <img
-      src="images/desert-habitat-model-evs-project.jpg"
-      alt="Completed desert habitat model for EVS project with camels cactus and desert animals"
-    >
-
-  </div>
-
-</section>
-
-<section class="section">
-
-  <h2>Watch the Desert Habitat Project</h2>
-
-  <p>
-    Watch the short video to see the finished desert habitat model and how the camels, cactus plants, tent and desert scenery come together in a colourful 3D school project.
-  </p>
-
-  <div class="video-short">
-
-    <iframe
-      src="https://www.youtube.com/embed/pS7iMCW8AZM"
-      title="Desert Habitat Project for Kids - EVS 3D School Model"
-      loading="lazy"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowfullscreen>
-    </iframe>
-
-  </div>
-
-</section>
-
-<section class="section">
-
-  <div id="download" class="download-box">
-
-    <h2>Make This Desert Habitat Project</h2>
-
-    <p>
-      Download the printable project and build the complete 3D desert habitat at home.
-      You only need a printer, scissors, glue and a suitable cardboard box.
-    </p>
-
-    <div class="price">₹299</div>
-    <p class="price-note">One-time purchase · Digital printable project</p>
-
-    <button
-      class="buy-button"
-      type="button"
-      onclick="openDesertCheckout()">
-      Buy Desert Project – ₹299
-    </button>
-
-    <p class="test-note">
-      Test checkout only — no real payment will be charged while this page is connected to the Paddle Sandbox.
-    </p>
-
-    <div id="download-status" class="download-status">
-      <p id="download-message">After successful payment, your secure PDF download will appear here.</p>
-      <a
-        id="secure-download-link"
-        class="secure-download-link"
-        href="#"
-        hidden>
-        Download Desert Habitat Project PDF
-      </a>
-    </div>
-
-  </div>
-
-</section>
-
-<div class="back">
-  <a href="/">← Explore more school projects</a>
-</div>
-
-<footer>
-  © 2026 School Projects India · Creative project ideas for students, parents and teachers
-</footer>
-
+<div class="india-bar">🇮🇳 Easy school project ideas for students, parents & teachers in India</div>
+<header><a class="logo" href="/">School Projects India</a><div class="tagline">EVS Projects · 3D Models · Habitat Projects · School Activities</div></header>
+
+<section class="hero"><div class="hero-copy"><div class="hero-label">Desert Habitat · EVS · 3D School Model</div><h1>Desert Habitat Project for Kids</h1><p>Need a desert habitat project for school? This printable 3D model helps children create a colourful desert scene with camels, cacti, desert animals and layered scenery for EVS homework and school assignments.</p></div>
+<div><img src="images/desert-habitat-project-india.jpg" alt="Desert habitat project 3D EVS school model with camels cactus and desert scenery for children in India"></div></section>
+
+<section class="section"><div class="parent-box"><h2>An Easy Desert Project for Busy Parents</h2><p>If your child needs a desert model, camel habitat project or EVS assignment, this printable project gives you a clear starting point. The backgrounds, animals and scenery are already illustrated, so children can spend their time cutting, arranging and building.</p></div></section>
+<section class="section"><h2>What Children Can Learn</h2><p>Children can explore desert habitats, dry climates, desert plants and the animals that are adapted to live there. The project can be used for EVS activities, environmental studies, homework and school exhibitions.</p></section>
+<section class="section"><h2>See What Is Included</h2><p>The printable set includes desert backgrounds, camels, cacti, desert animals and scenery for building a layered 3D model.</p><img class="gallery-image" src="images/desert-evs-project-printable-parts.jpg" alt="Printable desert EVS project parts with camels cactus and desert scenery"></section>
+
+<section class="section"><h2>From Printable Pages to a 3D Model</h2><p>Children can use the printable pieces to create a layered scene instead of a flat school poster. They can decide where to place the animals and scenery and make the finished model their own.</p>
+<img class="gallery-image" src="images/desert-habitat-model-camels-cactus.jpg" alt="Desert habitat model with camels cactus and desert animals"></section>
+
+<section class="section"><h2>How to Make the Desert Habitat Project</h2><div class="steps">
+<div class="step"><div class="step-number">1</div><h3>Print</h3><p>Print the project pages at home on A4 paper or slightly thicker paper.</p></div>
+<div class="step"><div class="step-number">2</div><h3>Cut</h3><p>Cut out the animals, scenery, backgrounds and other project pieces.</p></div>
+<div class="step"><div class="step-number">3</div><h3>Build</h3><p>Arrange and glue the pieces inside a shoebox or similar cardboard box.</p></div>
+</div></section>
+
+<section class="section"><h2>See the Finished Desert Model</h2><div class="two-images"><img src="images/desert-habitat-project-3d-details.jpg" alt="Close up details of printable desert habitat 3D school project"><img src="images/desert-3d-school-project-india.jpg" alt="Completed desert 3D school project for children in India"></div></section>
+
+<section class="section"><h2>Watch the Desert Habitat Project</h2><div class="video-short"><iframe src="https://www.youtube.com/embed/pS7iMCW8AZM" title="Desert Habitat Project for Kids" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div></section>
+
+<section class="section" id="download"><div class="download-box">
+<h2>Want to Make This Desert Habitat?</h2>
+<p>Get the printable desert habitat project as an instant digital download. Print the pages at home, cut out the pieces and build your own 3D school model.</p>
+<p><strong>Digital PDF · ₹299 · Secure checkout</strong></p>
+<button class="buy-button" id="buyDesert">Buy Desert Project – ₹299</button>
+<div class="checkout-status" id="checkoutStatus"></div>
+<div class="download-area" id="downloadArea"><h3>Your Desert Project is Ready</h3><p>Payment verified. Use the button below to download your PDF.</p><a class="download-button" id="downloadLink" href="#">Download Desert Habitat Project PDF</a></div>
+</div></section>
+
+<div class="back"><a href="/">← Explore more school projects</a></div>
+<footer>© 2026 School Projects India · Creative project ideas for students, parents and teachers
+<div class="legal-links"><a href="/pricing.html">Projects & Pricing</a> · <a href="/terms.html">Terms</a> · <a href="/privacy.html">Privacy</a> · <a href="/refunds.html">Refunds</a></div></footer>
+
+<script>
+const PADDLE_CLIENT_TOKEN="live_6db2475f18adeb16a137f995a0d";
+const DESERT_PRICE_ID="pri_01m1cngx5b1frqn1zamt4ewhw1";
+const DOWNLOAD_WORKER="https://school-projects-india-downloads.gedeeldemailbox.workers.dev";
+const STORAGE_KEY="spi_desert_transaction";
+
+const buyButton=document.getElementById("buyDesert");
+const checkoutStatus=document.getElementById("checkoutStatus");
+const downloadArea=document.getElementById("downloadArea");
+const downloadLink=document.getElementById("downloadLink");
+
+function getTransactionIdFromEvent(event){
+  return event?.data?.transaction_id || event?.data?.transactionId || event?.data?.transaction?.id || (event?.data?.id?.startsWith("txn_") ? event.data.id : null) || null;
+}
+
+const pageUrl=new URL(window.location.href);
+const returnedTransactionId=pageUrl.searchParams.get("_ptxn")||pageUrl.searchParams.get("transaction_id")||pageUrl.searchParams.get("transactionId");
+
+if(returnedTransactionId&&returnedTransactionId.startsWith("txn_")){
+  localStorage.setItem(STORAGE_KEY,returnedTransactionId);
+  pageUrl.searchParams.delete("_ptxn");pageUrl.searchParams.delete("transaction_id");pageUrl.searchParams.delete("transactionId");
+  window.history.replaceState({},"",pageUrl.pathname+pageUrl.search+pageUrl.hash);
+}
+
+Paddle.Initialize({
+  token:PADDLE_CLIENT_TOKEN,
+  eventCallback:function(event){
+    const transactionId=getTransactionIdFromEvent(event);
+    if(transactionId&&transactionId.startsWith("txn_")) localStorage.setItem(STORAGE_KEY,transactionId);
+    if(event.name==="checkout.completed"&&transactionId){
+      checkoutStatus.textContent="Payment received. Preparing your secure download...";
+      claimTransaction(transactionId);
+    }
+  }
+});
+
+buyButton.addEventListener("click",function(){
+  checkoutStatus.textContent="";
+  Paddle.Checkout.open({
+    items:[{priceId:DESERT_PRICE_ID,quantity:1}],
+    settings:{successUrl:"https://schoolprojectsindia.com/desert-habitat-project.html?payment=success#download"}
+  });
+});
+
+async function claimTransaction(transactionId,attempt=1){
+  try{
+    const response=await fetch(DOWNLOAD_WORKER+"/claim",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({transaction_id:transactionId})});
+    const data=await response.json();
+    if(response.ok&&data.status==="ready"&&data.product==="desert"&&data.download_url){
+      downloadLink.href=data.download_url;downloadArea.style.display="block";
+      checkoutStatus.textContent="Payment verified. Your secure PDF is ready.";
+      downloadArea.scrollIntoView({behavior:"smooth",block:"center"});return;
+    }
+    if((response.status===409||data.status==="pending")&&attempt<120){
+      checkoutStatus.textContent="Payment is being confirmed. Your download will appear automatically...";
+      setTimeout(function(){claimTransaction(transactionId,attempt+1);},3000);return;
+    }
+    checkoutStatus.textContent="We could not verify the payment yet. Please wait a moment and refresh this page.";
+  }catch(error){
+    if(attempt<120) setTimeout(function(){claimTransaction(transactionId,attempt+1);},3000);
+    else checkoutStatus.textContent="There was a connection problem. Please refresh this page to try again.";
+  }
+}
+
+const savedTransaction=returnedTransactionId||localStorage.getItem(STORAGE_KEY);
+if(savedTransaction&&savedTransaction.startsWith("txn_")){
+  checkoutStatus.textContent="Checking your Desert purchase...";
+  claimTransaction(savedTransaction);
+}else if(new URL(window.location.href).searchParams.get("payment")==="success"){
+  checkoutStatus.textContent="Payment completed. Waiting for the secure download information...";
+}
+</script>
 </body>
 </html>

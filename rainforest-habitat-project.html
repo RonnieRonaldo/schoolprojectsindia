@@ -479,17 +479,46 @@
 
   Paddle.Environment.set("sandbox");
 
+  // Capture a Paddle transaction ID as early as possible.
+  // This is important for UPI, where payment may continue in another tab/app.
+  function getTransactionIdFromEvent(event) {
+    return event?.data?.transaction_id ||
+           event?.data?.transactionId ||
+           event?.data?.transaction?.id ||
+           null;
+  }
+
+  const pageUrl = new URL(window.location.href);
+  const returnedTransactionId =
+    pageUrl.searchParams.get("_ptxn") ||
+    pageUrl.searchParams.get("transaction_id") ||
+    pageUrl.searchParams.get("transactionId");
+
+  if (returnedTransactionId && returnedTransactionId.startsWith("txn_")) {
+    localStorage.setItem(STORAGE_KEY, returnedTransactionId);
+
+    // Remove Paddle's _ptxn parameter before Paddle.Initialize().
+    // Otherwise Paddle.js may try to reopen the checkout automatically.
+    pageUrl.searchParams.delete("_ptxn");
+    pageUrl.searchParams.delete("transaction_id");
+    pageUrl.searchParams.delete("transactionId");
+    window.history.replaceState({}, "", pageUrl.pathname + pageUrl.search + pageUrl.hash);
+  }
+
   Paddle.Initialize({
     token: PADDLE_CLIENT_TOKEN,
     eventCallback: function(event) {
-      if (event.name === "checkout.completed") {
-        const transactionId = event.data?.transaction_id || event.data?.transactionId;
+      const transactionId = getTransactionIdFromEvent(event);
 
-        if (transactionId) {
-          localStorage.setItem(STORAGE_KEY, transactionId);
-          checkoutStatus.textContent = "Payment received. Preparing your secure download...";
-          claimTransaction(transactionId);
-        }
+      // Save the transaction ID on any checkout event where Paddle exposes it,
+      // not only after checkout.completed. This survives the external UPI flow.
+      if (transactionId && transactionId.startsWith("txn_")) {
+        localStorage.setItem(STORAGE_KEY, transactionId);
+      }
+
+      if (event.name === "checkout.completed" && transactionId) {
+        checkoutStatus.textContent = "Payment received. Preparing your secure download...";
+        claimTransaction(transactionId);
       }
     }
   });
@@ -552,11 +581,15 @@
     }
   }
 
-  const savedTransaction = localStorage.getItem(STORAGE_KEY);
+  const savedTransaction =
+    returnedTransactionId ||
+    localStorage.getItem(STORAGE_KEY);
 
-  if (savedTransaction) {
-    checkoutStatus.textContent = "Checking your previous Rainforest purchase...";
+  if (savedTransaction && savedTransaction.startsWith("txn_")) {
+    checkoutStatus.textContent = "Checking your Rainforest purchase...";
     claimTransaction(savedTransaction);
+  } else if (new URL(window.location.href).searchParams.get("payment") === "success") {
+    checkoutStatus.textContent = "Payment completed. Waiting for the secure download information...";
   }
 </script>
 

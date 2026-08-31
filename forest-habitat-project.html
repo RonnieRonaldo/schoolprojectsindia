@@ -18,6 +18,8 @@
 
   <link rel="canonical" href="https://schoolprojectsindia.com/forest-habitat-project.html">
 
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -204,15 +206,37 @@
       margin-bottom: 12px;
     }
 
-    .button {
+    .buy-button,
+    .download-button {
       display: inline-block;
-      margin-top: 14px;
-      padding: 13px 20px;
-      background: #24563d;
-      color: white;
+      margin-top: 12px;
+      background: #d88619;
+      color: #ffffff;
+      border: 0;
+      border-radius: 10px;
+      padding: 15px 24px;
+      font-size: 18px;
+      font-weight: 800;
       text-decoration: none;
-      font-weight: 700;
-      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .buy-button:hover,
+    .download-button:hover {
+      opacity: 0.92;
+    }
+
+    .checkout-status {
+      margin-top: 16px;
+      font-size: 15px;
+      color: #666;
+    }
+
+    .download-area {
+      display: none;
+      margin-top: 22px;
+      padding-top: 20px;
+      border-top: 1px solid #eee4d4;
     }
 
     .back {
@@ -423,20 +447,28 @@
 
 </section>
 
-<section class="section">
+<section class="section" id="download">
 
   <div class="download-box">
 
     <h2>Want to Make This Forest Habitat?</h2>
 
     <p>
-      The printable project gives you the illustrated pages needed to create the forest model at home.
-      You provide the printer, scissors, glue and a suitable box.
+      Get the printable forest habitat project as an instant digital download.
+      Print the pages at home, cut out the pieces and build your own 3D forest school model.
     </p>
 
-    <p>
-      The download button will be added here once the India checkout is ready.
-    </p>
+    <p><strong>Digital PDF · ₹299 · Secure checkout</strong></p>
+
+    <button class="buy-button" id="buyForest">Buy Forest Project – ₹299</button>
+
+    <div class="checkout-status" id="checkoutStatus"></div>
+
+    <div class="download-area" id="downloadArea">
+      <h3>Your Forest Project is Ready</h3>
+      <p>Payment verified. Use the button below to download your PDF.</p>
+      <a class="download-button" id="downloadLink" href="#">Download Forest Habitat Project PDF</a>
+    </div>
 
   </div>
 
@@ -447,8 +479,141 @@
 </div>
 
 <footer>
-  © 2026 School Projects India · Creative project ideas for Indian families
+  © 2026 School Projects India · Creative project ideas for students, parents and teachers
 </footer>
+
+
+<script>
+  const PADDLE_CLIENT_TOKEN = "test_bc693661d6b583355a4e75caf4f";
+  const FOREST_PRICE_ID = "pri_01m1ckasgnmvmr14122xfj84jt";
+  const DOWNLOAD_WORKER = "https://school-projects-india-downloads.gedeeldemailbox.workers.dev";
+  const STORAGE_KEY = "spi_forest_transaction";
+
+  const buyButton = document.getElementById("buyForest");
+  const checkoutStatus = document.getElementById("checkoutStatus");
+  const downloadArea = document.getElementById("downloadArea");
+  const downloadLink = document.getElementById("downloadLink");
+
+  Paddle.Environment.set("sandbox");
+
+  function getTransactionIdFromEvent(event) {
+    return event?.data?.transaction_id ||
+           event?.data?.transactionId ||
+           event?.data?.transaction?.id ||
+           null;
+  }
+
+  const pageUrl = new URL(window.location.href);
+  const returnedTransactionId =
+    pageUrl.searchParams.get("_ptxn") ||
+    pageUrl.searchParams.get("transaction_id") ||
+    pageUrl.searchParams.get("transactionId");
+
+  if (returnedTransactionId && returnedTransactionId.startsWith("txn_")) {
+    localStorage.setItem(STORAGE_KEY, returnedTransactionId);
+
+    pageUrl.searchParams.delete("_ptxn");
+    pageUrl.searchParams.delete("transaction_id");
+    pageUrl.searchParams.delete("transactionId");
+    window.history.replaceState({}, "", pageUrl.pathname + pageUrl.search + pageUrl.hash);
+  }
+
+  Paddle.Initialize({
+    token: PADDLE_CLIENT_TOKEN,
+    eventCallback: function(event) {
+      const transactionId = getTransactionIdFromEvent(event);
+
+      if (transactionId && transactionId.startsWith("txn_")) {
+        localStorage.setItem(STORAGE_KEY, transactionId);
+      }
+
+      if (event.name === "checkout.completed" && transactionId) {
+        checkoutStatus.textContent = "Payment received. Preparing your secure download...";
+        claimTransaction(transactionId);
+      }
+    }
+  });
+
+  buyButton.addEventListener("click", function() {
+    checkoutStatus.textContent = "";
+
+    Paddle.Checkout.open({
+      items: [
+        {
+          priceId: FOREST_PRICE_ID,
+          quantity: 1
+        }
+      ],
+      settings: {
+        successUrl: "https://schoolprojectsindia.com/forest-habitat-project.html?payment=success#download"
+      }
+    });
+  });
+
+  async function claimTransaction(transactionId, attempt = 1) {
+    try {
+      const response = await fetch(DOWNLOAD_WORKER + "/claim", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          transaction_id: transactionId
+        })
+      });
+
+      const data = await response.json();
+
+      if (
+        response.ok &&
+        data.status === "ready" &&
+        data.product === "forest" &&
+        data.download_url
+      ) {
+        downloadLink.href = data.download_url;
+        downloadArea.style.display = "block";
+        checkoutStatus.textContent = "Payment verified. Your secure PDF is ready.";
+        downloadArea.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      if ((response.status === 409 || data.status === "pending") && attempt < 20) {
+        checkoutStatus.textContent =
+          "Payment is being confirmed. Your download will appear automatically...";
+
+        setTimeout(function() {
+          claimTransaction(transactionId, attempt + 1);
+        }, 3000);
+        return;
+      }
+
+      checkoutStatus.textContent =
+        "We could not verify the payment yet. Please wait a moment and refresh this page.";
+
+    } catch (error) {
+      if (attempt < 20) {
+        setTimeout(function() {
+          claimTransaction(transactionId, attempt + 1);
+        }, 3000);
+      } else {
+        checkoutStatus.textContent =
+          "There was a connection problem. Please refresh this page to try again.";
+      }
+    }
+  }
+
+  const savedTransaction =
+    returnedTransactionId ||
+    localStorage.getItem(STORAGE_KEY);
+
+  if (savedTransaction && savedTransaction.startsWith("txn_")) {
+    checkoutStatus.textContent = "Checking your Forest purchase...";
+    claimTransaction(savedTransaction);
+  } else if (new URL(window.location.href).searchParams.get("payment") === "success") {
+    checkoutStatus.textContent =
+      "Payment completed. Waiting for the secure download information...";
+  }
+</script>
 
 </body>
 </html>

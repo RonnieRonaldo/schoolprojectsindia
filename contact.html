@@ -36,10 +36,10 @@
 <header><a class="logo" href="/">School Projects India</a><div class="tagline">EVS Projects · 3D Models · Habitat Projects · School Activities</div></header>
 <main>
   <h1>Contact & Help</h1>
-  <p class="intro">Need help with a printable project, payment or PDF download? Check the quick answers below first. If you still need help, send us a message using the contact form.</p>
+  <p class="intro">Need help with a printable project, payment or PDF download? You can also ask about choosing an EVS model, preparing a family craft activity or using a project for learning at home. Check the quick answers below first. If you still need help, send us a message using the contact form.</p>
 
   <section class="help-box">
-    <h2>Quick Help</h2>
+    <h2>Quick Help</h2><p>For materials, building together and school project ideas, see the <a href="/faq.html">full FAQ</a>.</p>
     <div class="faq-item"><h3>My payment was completed, but I cannot see my download.</h3><p>Return to the project page in the same browser you used for payment and allow a moment for the secure download to appear. If it still does not appear, send us a message below and mention which project you purchased.</p></div>
     <div class="faq-item"><h3>I received the wrong PDF or the file will not open.</h3><p>Tell us which project you purchased and what went wrong. We can check the order and help you get access to the correct file.</p></div>
     <div class="faq-item"><h3>How should I print the project?</h3><p>The projects are designed for home printing. Use the paper size supplied with the product and print at actual size or 100% unless the project instructions say otherwise.</p></div>
@@ -65,7 +65,7 @@
 
   <div class="back"><a href="/">← Back to School Projects India</a></div>
 </main>
-<footer>© 2026 School Projects India · Creative project ideas for students, parents and teachers<br><a href="/contact.html">Contact & Help</a> · <a href="/terms.html">Terms</a> · <a href="/privacy.html">Privacy</a> · <a href="/refunds.html">Refunds</a></footer>
+<footer>© 2026 School Projects India · Creative project ideas for students, parents and teachers<br><a href="/contact.html">Contact & Help</a> · <a href="/terms.html">Terms</a> · <a href="/privacy.html">Privacy</a> · <a href="/refunds.html">Refunds</a><br><br><a href="/faq.html">FAQ</a> · <a href="/about.html">About Me</a></footer>
 <script>
   const form=document.getElementById('contact-form');const statusBox=document.getElementById('form-status');const submitButton=document.getElementById('submit-button');
   form.addEventListener('submit',async function(event){event.preventDefault();statusBox.className='status';statusBox.textContent='';submitButton.disabled=true;submitButton.textContent='Sending...';try{const formData=new FormData(form);const response=await fetch('https://api.web3forms.com/submit',{method:'POST',body:formData});const data=await response.json();if(data.success){statusBox.className='status success';statusBox.textContent='Thank you. Your message has been sent successfully.';form.reset();}else{throw new Error('Submission failed');}}catch(error){statusBox.className='status error';statusBox.textContent='Sorry, your message could not be sent. Please try again in a moment.';}finally{submitButton.disabled=false;submitButton.textContent='Send Message';}});

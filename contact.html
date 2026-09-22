@@ -1,13 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-50FJS680FY"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-50FJS680FY');
-  </script>
+  
+  
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact & Help | School Projects India</title>
@@ -30,6 +25,8 @@
   <link rel="icon" href="/favicon.ico?v=1" sizes="any">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=1">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/analytics-consent.css">
+<script defer src="/analytics-consent.js"></script>
 </head>
 <body>
 <div class="india-bar">🇮🇳 Easy school project ideas for students, parents & teachers in India</div>
@@ -65,7 +62,7 @@
 
   <div class="back"><a href="/">← Back to School Projects India</a></div>
 </main>
-<footer>© 2026 School Projects India · Creative project ideas for students, parents and teachers<br><a href="/contact.html">Contact & Help</a> · <a href="/terms.html">Terms</a> · <a href="/privacy.html">Privacy</a> · <a href="/refunds.html">Refunds</a><br><br><a href="/faq.html">FAQ</a> · <a href="/about.html">About Me</a></footer>
+<footer>© 2026 School Projects India · Creative project ideas for students, parents and teachers<br><a href="/contact.html">Contact & Help</a> · <a href="/terms.html">Terms</a> · <a href="/privacy.html">Privacy</a> · <a href="/refunds.html">Refunds</a><br><br><a href="/faq.html">FAQ</a> · <a href="/about.html">About Me</a><div class="analytics-footer"><a href="/privacy.html">Privacy &amp; analytics</a> · <button type="button" class="analytics-settings">Analytics settings</button></div></footer>
 <script>
   const form=document.getElementById('contact-form');const statusBox=document.getElementById('form-status');const submitButton=document.getElementById('submit-button');
   form.addEventListener('submit',async function(event){event.preventDefault();statusBox.className='status';statusBox.textContent='';submitButton.disabled=true;submitButton.textContent='Sending...';try{const formData=new FormData(form);const response=await fetch('https://api.web3forms.com/submit',{method:'POST',body:formData});const data=await response.json();if(data.success){statusBox.className='status success';statusBox.textContent='Thank you. Your message has been sent successfully.';form.reset();}else{throw new Error('Submission failed');}}catch(error){statusBox.className='status error';statusBox.textContent='Sorry, your message could not be sent. Please try again in a moment.';}finally{submitButton.disabled=false;submitButton.textContent='Send Message';}});

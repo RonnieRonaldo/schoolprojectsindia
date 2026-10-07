@@ -2,7 +2,8 @@
 (function () {
   'use strict';
   const c = JSON.parse(document.currentScript.dataset.purchase);
-  const buy = document.getElementById(c.button);
+  const buys = [...document.querySelectorAll('.buy-button')];
+  const setDisabled = value => buys.forEach(button => { button.disabled = value; });
   const status = document.getElementById('checkoutStatus');
   const area = document.getElementById('downloadArea');
   const link = document.getElementById('downloadLink');
@@ -41,7 +42,7 @@
   async function claim() {
     if (checking || !valid(transaction)) return;
     const id = transaction;
-    checking = true; retry.hidden = true; buy.disabled = true;
+    checking = true; retry.hidden = true; setDisabled(true);
     message('Checking your payment. Please do not purchase again.');
     try {
       for (let attempt = 0; attempt < 5; attempt++) {
@@ -86,7 +87,7 @@
         fail('We could not verify this purchase yet.'); return;
       }
     } catch (_) { fail('We could not retrieve your download.'); }
-    finally { checking = false; buy.disabled = paid || !paddleReady; }
+    finally { checking = false; setDisabled(paid || !paddleReady); }
   }
   retry.addEventListener('click', claim);
   try {
@@ -96,7 +97,7 @@
         const id = data.transaction_id || data.transactionId || data.transaction?.id || data.id;
         if (valid(id)) remember(id);
         if (event.name === 'checkout.completed') {
-          paid = true; buy.disabled = true;
+          paid = true; setDisabled(true);
           if (valid(transaction)) claim();
           else fail('Payment was completed, but the download reference is missing.');
         }
@@ -104,18 +105,18 @@
       paddleReady = true;
     }
   } catch (_) { paddleReady = false; }
-  buy.disabled = !paddleReady;
-  buy.addEventListener('click', () => {
+  setDisabled(!paddleReady);
+  buys.forEach(buy => buy.addEventListener('click', () => {
     if (checking || paid) return;
     if (!paddleReady) { fail('Checkout could not load. Please refresh the page.'); return; }
     try {
       window.Paddle.Checkout.open({items: [{priceId: c.price, quantity: 1}], settings: {successUrl: c.success}});
     } catch (_) { fail('Checkout could not open. Please refresh the page.'); }
-  });
+  }));
   // Recovery must also work when Paddle.js or browser storage is unavailable.
   if (transaction) claim();
   else if (page.searchParams.get('payment') === 'success') {
-    paid = true; buy.disabled = true;
+    paid = true; setDisabled(true);
     fail('The purchase reference is missing. We can help recover your download.');
   } else if (!paddleReady) message('Checkout could not load. Please refresh the page, or contact us if you have already paid.');
 })();

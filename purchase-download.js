@@ -8,7 +8,7 @@
   const area = document.getElementById('downloadArea');
   const link = document.getElementById('downloadLink');
   const valid = id => typeof id === 'string' && /^txn_[a-z0-9]+$/.test(id);
-  let transaction = null, checking = false, paid = false, paddleReady = false;
+  let transaction = null, checking = false, paid = false, paddleReady = false, opening = false;
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
   const controls = document.createElement('div');
@@ -106,15 +106,25 @@
     }
   } catch (_) { paddleReady = false; }
   setDisabled(!paddleReady);
-  buys.forEach(buy => buy.addEventListener('click', () => {
-    if (checking || paid) return;
+  buys.forEach(buy => buy.addEventListener('click', async () => {
+    if (checking || paid || opening) return;
     if (!paddleReady) { fail('Checkout could not load. Please refresh the page.'); return; }
+    opening=true; setDisabled(true);
     try {
-      window.Paddle.Checkout.open({items: [{priceId: c.price, quantity: 1}], settings: {successUrl: c.success}});
+      const response=await fetch(c.worker+'/create-india-recovery',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product:c.product})});
+      if(!response.ok)throw new Error('Unable to create recovery transaction');
+      const data=await response.json();
+      if(!valid(data.transactionId))throw new Error('Invalid transaction');
+      remember(data.transactionId);
+      window.Paddle.Checkout.open({transactionId:data.transactionId});
     } catch (_) { fail('Checkout could not open. Please refresh the page.'); }
+    finally { opening=false; if(!paid) setDisabled(false); }
   }));
   // Recovery must also work when Paddle.js or browser storage is unavailable.
-  if (transaction) claim();
+  if (returned && page.searchParams.has('_ptxn') && paddleReady) {
+    try { window.Paddle.Checkout.open({transactionId:returned}); }
+    catch (_) { fail('Could not resume this checkout.'); }
+  } else if (transaction) claim();
   else if (page.searchParams.get('payment') === 'success') {
     paid = true; setDisabled(true);
     fail('The purchase reference is missing. We can help recover your download.');

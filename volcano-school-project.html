@@ -99,12 +99,16 @@ if(window.Paddle){
    if(valid(id)){remember(id);claim();}else{status('Payment received. If your download does not appear, contact us with your Paddle receipt. Please do not purchase again.');}
   }
  }});
- buttons.forEach(button=>button.addEventListener('click',()=>{
-  if(paid||checking||transactionId){showStatus();return;}
+ buttons.forEach(button=>button.addEventListener('click',async ()=>{
+  if(paid||checking){showStatus();return;}
   if(typeof gtag==='function')gtag('event','buy_click',{product:'volcano',position:button.dataset.position,currency:'INR',value:299});
-  try{Paddle.Checkout.open({items:[{priceId:PRICE_ID,quantity:1}],settings:{successUrl:'https://schoolprojectsindia.com/volcano-school-project.html?payment=success#download'}});}catch(e){status('Checkout could not open. Please refresh the page and try again.');showStatus();}
+  try{const response=await fetch(WORKER+'/create-india-recovery',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product:'volcano'})});
+   if(!response.ok)throw Error('Unable to create checkout');
+   const result=await response.json();if(!valid(result.transactionId))throw Error('Invalid transaction');
+   remember(result.transactionId);Paddle.Checkout.open({transactionId:result.transactionId});}catch(e){status('Checkout could not open. Please refresh the page and try again.');showStatus();}
  }));
 }else{lock(true);status('Checkout could not load. Please refresh the page to try again.');}
-if(transactionId){claim();}
+if(pageUrl.searchParams.has('_ptxn')&&valid(transactionId)){try{Paddle.Checkout.open({transactionId})}catch(e){status('Could not resume checkout.');showStatus();}}
+else if(transactionId){claim();}
 else if(pageUrl.searchParams.get('payment')==='success'){paid=true;lock(true);status('If you completed payment, please contact us with your Paddle receipt so we can help retrieve your download. Please do not purchase again.');}
 </script></body></html>

@@ -514,9 +514,9 @@ setStatus("Payment received. If your download does not appear, contact us with y
 }
 }
 
-function openCheckout(button){
+async function openCheckout(button){
 
-if(paid||checking||transactionId){
+if(paid||checking){
 showStatus();
 return;
 }
@@ -530,18 +530,10 @@ value:3.49
 
 try{
 
-Paddle.Checkout.open({
-items:[
-{
-priceId:PRICE_ID,
-quantity:1
-}
-],
-settings:{
-locale:"en",
-successUrl:PAGE_URL+"?payment=success#download"
-}
-});
+const response=await fetch(WORKER+'/create-india-recovery',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product:'polar-in'})});
+if(!response.ok)throw Error('Unable to create checkout');
+const result=await response.json();if(!valid(result.transactionId))throw Error('Invalid transaction');
+remember(result.transactionId);Paddle.Checkout.open({transactionId:result.transactionId});
 
 track("begin_checkout",{
 currency:"USD",
@@ -605,7 +597,7 @@ pageUrl.searchParams.delete(key);
 
 history.replaceState({}, "", pageUrl.pathname+pageUrl.search+pageUrl.hash);
 
-claim();
+try{Paddle.Checkout.open({transactionId:returned})}catch(error){setStatus("Could not resume checkout.");showStatus();}
 
 }else{
 

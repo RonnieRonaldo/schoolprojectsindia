@@ -64,7 +64,7 @@ function status(message){statusBox.textContent=message;}
 function showStatus(){document.getElementById('download').scrollIntoView({behavior:'smooth',block:'start'});}
 const pageUrl=new URL(location.href);
 const returned=pageUrl.searchParams.get('_ptxn')||pageUrl.searchParams.get('transaction_id')||pageUrl.searchParams.get('transactionId');
-if(valid(returned)){remember(returned);['_ptxn','transaction_id','transactionId'].forEach(k=>pageUrl.searchParams.delete(k));history.replaceState({},'',pageUrl.pathname+pageUrl.search+pageUrl.hash);}
+if(valid(returned)){remember(returned);}
 else{try{const saved=localStorage.getItem(STORAGE_KEY);if(valid(saved))transactionId=saved;}catch(e){}}
 async function claim(){
  if(checking||!valid(transactionId))return;
@@ -109,6 +109,6 @@ if(window.Paddle){
  }));
 }else{lock(true);status('Checkout could not load. Please refresh the page to try again.');}
 if(pageUrl.searchParams.has('_ptxn')&&valid(transactionId)){try{Paddle.Checkout.open({transactionId})}catch(e){status('Could not resume checkout.');showStatus();}}
-else if(transactionId){claim();}
+else if(pageUrl.searchParams.get('payment')==='success'&&valid(transactionId)){claim();}
 else if(pageUrl.searchParams.get('payment')==='success'){paid=true;lock(true);status('If you completed payment, please contact us with your Paddle receipt so we can help retrieve your download. Please do not purchase again.');}
 </script></body></html>

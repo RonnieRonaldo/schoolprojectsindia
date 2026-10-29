@@ -607,7 +607,7 @@ const saved=localStorage.getItem(STORAGE_KEY);
 
 if(valid(saved)){
 transactionId=saved;
-claim();
+if(pageUrl.searchParams.get("payment")==="success")claim();
 }
 
 }catch(error){}

@@ -124,7 +124,7 @@
   if (returned && page.searchParams.has('_ptxn') && paddleReady) {
     try { window.Paddle.Checkout.open({transactionId:returned}); }
     catch (_) { fail('Could not resume this checkout.'); }
-  } else if (transaction) claim();
+  } else if (page.searchParams.get('payment') === 'success' && valid(transaction)) claim();
   else if (page.searchParams.get('payment') === 'success') {
     paid = true; setDisabled(true);
     fail('The purchase reference is missing. We can help recover your download.');
